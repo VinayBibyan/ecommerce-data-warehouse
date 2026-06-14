@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 from urllib.parse import quote_plus  # <-- Crucial import for encoding special characters
 
@@ -23,6 +23,32 @@ def get_db_engine():
     connection_string = f"postgresql://{db_user}:{safe_password}@{db_host}:{db_port}/{db_name}"
     
     return create_engine(connection_string)
+
+def create_tables_from_sql():
+    """
+    Executes the create_tables.sql file to initialize/recreate the database schema.
+    This should be called before loading data to ensure tables exist.
+    """
+    print("🗄️  Creating/Recreating Database Tables...")
+    
+    try:
+        engine = get_db_engine()
+        
+        # Read the SQL file
+        sql_file_path = os.path.join(os.path.dirname(__file__), '..', 'sql', 'create_tables.sql')
+        with open(sql_file_path, 'r') as f:
+            sql_script = f.read()
+        
+        # Execute the SQL script
+        with engine.connect() as connection:
+            connection.execute(text(sql_script))
+            connection.commit()
+        
+        print("✅ Database tables created successfully!\n")
+        
+    except Exception as e:
+        print(f"❌ Critical Error during Table Creation: {e}")
+        raise e
 
 def load_data(transformed_datasets):
     """

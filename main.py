@@ -2,7 +2,7 @@ import sys
 import time
 from etl.extract import extract_raw_data
 from etl.transform import transform_data
-from etl.load import load_data
+from etl.load import load_data, create_tables_from_sql
 
 def run_pipeline():
     """
@@ -15,6 +15,9 @@ def run_pipeline():
     print("=============================================\n")
     
     try:
+        # 0. CREATE TABLES
+        create_tables_from_sql()
+        
         # 1. EXTRACT
         raw_datasets = extract_raw_data()
         
